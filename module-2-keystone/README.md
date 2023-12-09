@@ -3,8 +3,8 @@
 ## Setup Database
 ```
 mysql -e "CREATE DATABASE keystone;"
-mysql -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'KEYSTONE_DBPASS';"
-mysql -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'KEYSTONE_DBPASS';"
+mysql -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'password';"
+mysql -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'password';"
 mysql -e "flush privileges;"
 ```
 
@@ -23,7 +23,7 @@ memcache_servers = 10.0.0.8:11211
 
 [database]
 # ...
-connection = mysql+pymysql://keystone:KEYSTONE_DBPASS@controller/keystone
+connection = mysql+pymysql://keystone:password@controller/keystone
 
 [token]
 # ...
