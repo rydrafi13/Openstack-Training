@@ -8,6 +8,10 @@ mysql -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'pa
 mysql -e "flush privileges;"
 ```
 
+```
+mysql -e "SELECT User, Db, Host from mysql.db;"
+```
+
 ## Install and Configure Keystone
 ```
 apt install keystone
@@ -48,5 +52,43 @@ keystone-manage bootstrap --bootstrap-password password \
 ```
 
 ## Configure apache HTTP server
+```
+vim /etc/apache2/apache2.conf
+```
+
+```
+ServerName controller
+```
+
 ## Create rc to connect via cli
+```
+vim admin-rc
+```
+
+```
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_USER_DOMAIN_NAME=Default
+export OS_PROJECT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=password
+export OS_AUTH_URL=http://10.0.0.8:5000/v3
+export OS_IDENTITY_API_VERSION=3
+export OS_IMAGE_API_VERSION=2
+export PS1='\u@\h \W(admin)\$ '
+```
+
+```
+source admin-rc
+```
+
 ## Create Project, and User
+```
+# create project service
+openstack project create --domain default --description "Service Project" service
+
+# create own project 
+openstack project create --domain default --description "Personal Project" personal
+openstack user create --domain default --password-prompt rafiryd
+openstack role create client
+openstack role add --project personal --user rafiryd client
+```

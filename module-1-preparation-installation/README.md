@@ -109,7 +109,7 @@ apt install mariadb-server python3-pymysql
 
 Config mariadb
 ```
-/etc/mysql/mariadb.conf.d/99-openstack.cnf
+vim /etc/mysql/mariadb.conf.d/99-openstack.cnf
 ```
 
 Set this
