@@ -193,3 +193,22 @@ su -s /bin/sh -c "nova-manage cell_v2 list_cells" nova
 ```
 systemctl restart nova-{api,scheduler,conductor,novncproxy}
 ```
+
+## Install and Configuration Nova Compute
+```
+apt install nova-compute
+```
+
+```
+vim /etc/nova/nova-compute.conf
+```
+
+```
+[libvirt]
+# ...
+virt_type = qemu    
+```
+
+```
+systemctl restart nova-compute
+```
