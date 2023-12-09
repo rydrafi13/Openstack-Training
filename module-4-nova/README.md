@@ -89,9 +89,9 @@ openstack user create --domain default --password-prompt nova
 openstack role add --project service --user nova admin
 openstack service create --name nova --description "OpenStack Compute" compute
 
-openstack endpoint create --region Region-JKT compute public http://controller:9292
-openstack endpoint create --region Region-JKT compute internal http://controller:9292
-openstack endpoint create --region Region-JKT compute admin http://controller:9292
+openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1
+openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1
+openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1
 ```
 
 ## Install and Configuration Nova
