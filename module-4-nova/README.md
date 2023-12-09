@@ -87,7 +87,7 @@ mysql -e "SELECT User, Db, Host from mysql.db;"
 ```
 openstack user create --domain default --password-prompt nova
 openstack role add --project service --user nova admin
-openstack service create --name nova --description "OpenStack Compute" nova
+openstack service create --name nova --description "OpenStack Compute" compute
 
 openstack endpoint create --region Region-JKT compute public http://controller:9292
 openstack endpoint create --region Region-JKT compute internal http://controller:9292
