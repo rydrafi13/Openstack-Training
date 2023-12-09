@@ -74,8 +74,8 @@ mysql -e "GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY
 mysql -e "GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'password';"
 mysql -e "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'password';"
 mysql -e "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'password';"
-mysql -e "GRANT ALL PRIVILEGES ON nova_cell0_.* TO 'nova'@'localhost' IDENTIFIED BY 'password';"
-mysql -e "GRANT ALL PRIVILEGES ON nova_cell0_.* TO 'nova'@'%' IDENTIFIED BY 'password';"
+mysql -e "GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'password';"
+mysql -e "GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'password';"
 mysql -e "flush privileges;"
 ```
 
@@ -87,7 +87,7 @@ mysql -e "SELECT User, Db, Host from mysql.db;"
 ```
 openstack user create --domain default --password-prompt nova
 openstack role add --project service --user nova admin
-openstack service create --name nova --description "OpenStack Compute" image
+openstack service create --name nova --description "OpenStack Compute" nova
 
 openstack endpoint create --region Region-JKT compute public http://controller:9292
 openstack endpoint create --region Region-JKT compute internal http://controller:9292
