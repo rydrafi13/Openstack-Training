@@ -228,4 +228,4 @@ systemctl restart nova-compute
 ## Verify
 ```
 su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
-```
+``` 
