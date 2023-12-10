@@ -125,7 +125,7 @@ target_helper = tgtadm
 ```
 
 ```
-systemctl tgt-restart
+systemctl restart tgt
 systemctl restart cinder-volume 
 ```
 

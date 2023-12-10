@@ -9,8 +9,10 @@ hostnamectl set-hostname allinone-rafi
 ## Set Timezone
 Set timezone to Asia/Jakarta
 ```
+# set timezone to WIB
 timedatectl set-timezone Asia/Jakarta
 
+# check timezone
 date
 ```
 
@@ -23,16 +25,18 @@ vim /etc/netplan/00-installer-config.yaml
 Set static ip address
 ```
 network:
+  version: 2
+  renderer: networkd
   ethernets:
     ens160:
-      dhcp4: false
       addresses:
-      - 10.0.0.8/24
-      gateway4: 10.0.0.1
+        - 10.0.0.8/24
+      routes:
+        - to: default
+          via: 10.0.0.1
       nameservers:
-        addresses:
-        - 8.8.8.8
-  version: 2
+          search: [google.com]
+          addresses: [1.1.1.1, 8.8.8.8]
 ```
 
 Load config
@@ -40,11 +44,14 @@ Load config
 netplan apply
 ```
 
-## Update & Upgrade
-Update & upgrade repository
+## Update ,Upgrade, and Cleaning Packages
+Update repository & Update packages
 ```
 apt update -y && apt upgrade -y
+```
 
+Cleaning package
+```
 apt autoremove -y && apt clean all
 ```
 
@@ -56,6 +63,7 @@ vim /etc/hosts
 
 Set controller to host
 ```
+# openstack environtment
 10.0.0.8 controller
 ```
 
@@ -77,7 +85,7 @@ server 1.id.pool.ntp.org
 server 2.id.pool.ntp.org
 server 3.id.pool.ntp.org
 
-allow 10.30.100.0/24
+allow 10.0.0.0/24
 ```
 
 Restart service chrony
@@ -152,15 +160,22 @@ rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 
 Verify
 ```
+# list user
 rabbitmqctl list_users
 
+# list user with permission
 rabbitmqctl list_permissions
+
+# test authentication
+rabbitmqctl authenticate_user openstack password
 ```
 
 Check listening port and service
 ```
+# check service
 systemctl status rabbitmq-server
 
+# check port listening
 ss -tulpn
 ```
 
@@ -187,8 +202,10 @@ systemctl restart memcached
 
 Check listening port and service
 ```
+# check service
 systemctl status memcached
 
+# check port listening
 ss -tulpn
 ```
 
@@ -223,7 +240,9 @@ systemctl restart etcd
 
 Check listening port and service
 ```
+# check service
 systemctl status memcached
 
+# check port listening
 ss -tulpn
 ```
