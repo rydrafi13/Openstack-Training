@@ -142,7 +142,7 @@ apt install rabbitmq-server
 
 Add openstack user
 ```
-rabbitmqctl add_user openstack RABBIT_PASS
+rabbitmqctl add_user openstack password
 ```
 
 Add openstack user permission
