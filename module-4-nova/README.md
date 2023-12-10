@@ -18,9 +18,9 @@ openstack user create --domain default --password-prompt placement
 openstack role add --project service --user placement admin
 openstack service create --name placement --description "Placement API" placement
 
-openstack endpoint create --region Region-JKT placement public http://controller:9292
-openstack endpoint create --region Region-JKT placement internal http://controller:9292
-openstack endpoint create --region Region-JKT placement admin http://controller:9292
+openstack endpoint create --region Region-JKT placement public http://controller:8778
+openstack endpoint create --region Region-JKT placement internal http://controller:8778
+openstack endpoint create --region Region-JKT placement admin http://controller:8778
 ```
 
 ## Install and Configuration Placement
@@ -65,6 +65,16 @@ service apache2 restart
 placement-status upgrade check
 ```
 
+```
+apt install python3-pip
+pip3 install osc-placement
+```
+
+```
+openstack --os-placement-api-version 1.2 resource class list --sort-column name
+openstack --os-placement-api-version 1.6 trait list --sort-column name
+```
+
 ## Setup Database Nova
 ```
 mysql -e "CREATE DATABASE nova_api;"
@@ -96,11 +106,12 @@ openstack endpoint create --region Region-JKT compute admin http://controller:87
 
 ## Install and Configuration Nova
 ```
-apt install nova-api nova-conductor nova-novncproxy nova-scheduler
+apt install nova-api nova-conductor nova-novncproxy nova-scheduler python3-pip 
+pip3 install oslo.cache
 ```
 
 ```
-vim /etc/nova/nova.conf
+vim /etc/nova/nova.conf 
 ```
 
 ```
@@ -115,11 +126,12 @@ connection = mysql+pymysql://nova:password@controller/nova
 [DEFAULT]
 # ...
 transport_url = rabbit://openstack:password@controller:5672/
+instances_path=/var/lib/nova/instances
+my_ip = 10.0.0.8
 
 [api]
 # ...
 auth_strategy = keystone
-my_ip = 10.0.0.8
 
 [keystone_authtoken]
 # ...
@@ -211,4 +223,9 @@ virt_type = qemu
 
 ```
 systemctl restart nova-compute
+``` 
+
+## Verify
+```
+su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
 ```
