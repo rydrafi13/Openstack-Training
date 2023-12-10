@@ -70,7 +70,7 @@ su -s /bin/sh -c "cinder-manage db sync" cinder
 
 ```
 [cinder]
-os_region_name = RegionOne
+os_region_name = Region-JKT
 ```
 
 ```
@@ -83,5 +83,52 @@ systemctl restart apache2
 ```
 
 ```
-openstack compute service list
+openstack volume service list
+```
+
+## Create LVM Partition
+```
+apt install lvm2 thin-provisioning-tools
+```
+
+```
+pvcreate /dev/sdb
+vgcreate cinder-volumes /dev/sdb
+```
+
+```
+pvs
+vgs
+```
+
+## Install and Configure Cinder Volume
+```
+apt install cinder-volume tgt
+```
+
+```
+vim /etc/cinder/cinder.conf
+```
+
+```
+[DEFAULT]
+# ...
+enabled_backends = lvm
+glance_api_servers = http://controller:9292
+
+[lvm]
+# ...
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_group = cinder-volumes
+target_protocol = iscsi
+target_helper = tgtadm
+```
+
+```
+systemctl tgt-restart
+systemctl restart cinder-volume 
+```
+
+```
+openstack volume service list
 ```
