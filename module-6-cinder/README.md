@@ -24,9 +24,9 @@ openstack service create --name cinderv3 --description "OpenStack Block Storage"
 
 Create the Block Storage service API endpoints
 ```
-openstack endpoint create --region Region-JKT volumev3 public http://controller:8776/v3/%\(project_id\)s
-openstack endpoint create --region Region-JKT volumev3 internal http://controller:8776/v3/%\(project_id\)s
-openstack endpoint create --region Region-JKT volumev3 admin http://controller:8776/v3/%\(project_id\)s    
+openstack endpoint create --region JKT-01 volumev3 public http://controller:8776/v3/%\(project_id\)s
+openstack endpoint create --region JKT-01 volumev3 internal http://controller:8776/v3/%\(project_id\)s
+openstack endpoint create --region JKT-01 volumev3 admin http://controller:8776/v3/%\(project_id\)s    
 ```
 
 ## Install and configure cinder
@@ -82,7 +82,7 @@ vim /etc/nova/nova.conf
 Set this
 ```
 [cinder]
-os_region_name = Region-JKT
+os_region_name = JKT-01
 ```
 
 Restart the Compute API service
@@ -164,6 +164,11 @@ target_protocol = iscsi
 target_helper = tgtadm
 ```
 
+Create config cinder target
+```
+echo "include /var/lib/cinder/volumes/*" >> /etc/tgt/conf.d/cinder.conf 
+```
+
 Restart the Block Storage volume service including its dependencies
 ```
 systemctl restart tgt
@@ -173,4 +178,20 @@ systemctl restart cinder-volume
 List service components to verify successful launch of each process
 ```
 openstack volume service list
+```
+
+## Manage Volume via CLI
+Create a 1 GB volume
+```
+openstack volume create --size 1 volume1
+```
+
+List volume
+```
+openstack volume list
+```
+
+Attach a volume to an instance
+```
+openstack server add volume Public-VM volume1
 ```
