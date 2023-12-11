@@ -1,6 +1,7 @@
 # Neutron
 
 ## Setup Database
+Before you configure the OpenStack Networking (neutron) service, you must create a database, service credentials, and API endpoints
 ```
 mysql -e "CREATE DATABASE neutron;"
 mysql -e "GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'password';"
@@ -8,32 +9,40 @@ mysql -e "GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'pass
 mysql -e "flush privileges;"
 ```
 
+Check user access database
 ```
 mysql -e "SELECT User, Db, Host from mysql.db;"
 ```
 
 ## Setup endpoint
+To create the service credentials, complete these steps
 ```
 openstack user create --domain default --password-prompt neutron
 openstack role add --project service --user neutron admin
 openstack service create --name neutron --description "OpenStack Networking" network
+```
 
-openstack endpoint create --region Region-JKT network public http://controller:9696
-openstack endpoint create --region Region-JKT network internal http://controller:9696
-openstack endpoint create --region Region-JKT network admin http://controller:9696
+Create the Networking service API endpoints
+```
+openstack endpoint create --region JKT-01 network public http://controller:9696
+openstack endpoint create --region JKT-01 network internal http://controller:9696
+openstack endpoint create --region JKT-01 network admin http://controller:9696
 ```
 
 ## Install and Configuration Neutron
+Install the components
 ```
 apt install neutron-server neutron-plugin-ml2 \
   neutron-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
-  neutron-metadata-agent
+  neutron-metadata-agent python3-neutron-fwaas
 ```
 
+Edit the /etc/neutron/neutron.conf file and complete the following actions
 ```
 vim /etc/neutron/neutron.conf
 ```
 
+Set this
 ```
 [database]
 # ...
@@ -50,7 +59,6 @@ auth_strategy = keystone
 
 notify_nova_on_port_status_changes = true
 notify_nova_on_port_data_changes = true
-
 
 [keystone_authtoken]
 # ...
@@ -70,7 +78,7 @@ auth_url = http://controller:5000/
 auth_type = password
 project_domain_name = default
 user_domain_name = default
-region_name = Region-JKT
+region_name = JKT-01
 project_name = service
 username = nova
 password = password
@@ -90,14 +98,21 @@ user = neutron
 helper_command = sudo privsep-helper
 ```
 
+Create sudoers user
+```
+echo "neutron ALL = (root) NOPASSWD: ALL" > /etc/sudoers.d/neutron
+```
+
+Edit the /etc/neutron/plugins/ml2/ml2_conf.ini file and complete the following actions
 ```
 vim /etc/neutron/plugins/ml2/ml2_conf.ini
 ```
 
+Set this
 ```
 [ml2]
 # ...
-type_drivers = flat,vlan,vxlan
+type_drivers = flat,vlan,vxlan 
 tenant_network_types = vxlan
 mechanism_drivers = linuxbridge,l2population
 extension_drivers = port_security
@@ -115,13 +130,15 @@ vni_ranges = 1:1000
 enable_ipset = true
 ```
 
+Edit the /etc/neutron/plugins/ml2/linuxbridge_agent.ini file and complete the following actions
 ```
 vim /etc/neutron/plugins/ml2/linuxbridge_agent.ini
 ```
 
+Set this
 ```
 [linux_bridge]
-physical_interface_mappings = provider:ens192
+physical_interface_mappings = ext-net:ens192
 
 [vxlan]
 enable_vxlan = true
@@ -134,20 +151,24 @@ enable_security_group = true
 firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 ```
 
+Edit the /etc/neutron/l3_agent.ini file and complete the following actions
 ```
 vim /etc/neutron/l3_agent.ini
 ```
 
+Set this
 ```
 [DEFAULT]
 # ...
 interface_driver = linuxbridge
 ```
 
+Edit the /etc/neutron/dhcp_agent.ini file and complete the following actions
 ```
 vim /etc/neutron/dhcp_agent.ini
 ```
 
+Set this
 ```
 [DEFAULT]
 # ...
@@ -156,10 +177,12 @@ dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
 enable_isolated_metadata = true
 ```
 
+Edit the /etc/neutron/metadata_agent.ini file and complete the following actions
 ```
 vim /etc/neutron/metadata_agent.ini
 ```
 
+Set this
 ```
 [DEFAULT]
 # ...
@@ -167,20 +190,20 @@ nova_metadata_host = controller
 metadata_proxy_shared_secret = rafi_secret
 ```
 
+Edit the /etc/nova/nova.conf file and perform the following actions
 ```
 vim /etc/nova/nova.conf
 ```
 
+Set this
 ```
-# add this
-
 [neutron]
 # ...
 auth_url = http://controller:5000
 auth_type = password
 project_domain_name = default
 user_domain_name = default
-region_name = Region-JKT
+region_name = JKT-01
 project_name = service
 username = neutron
 password = password
@@ -188,15 +211,23 @@ service_metadata_proxy = true
 metadata_proxy_shared_secret = rafi_secret
 ```
 
+Populate the database
 ```
 su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
   --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
 ```
 
+Restart the Compute API service
 ```
 systemctl restart nova-{api,compute} 
 ```
 
+Restart the Networking services
 ```
-systemctl restart neuton-{server,linuxbridge-agent,dhcp-agent,metadata-agent,l3-agent}
+systemctl restart neutron-{server,linuxbridge-agent,dhcp-agent,metadata-agent,l3-agent}
+```
+
+List agents to verify successful launch of the neutron agents
+```
+openstack network agent list
 ```

@@ -106,7 +106,7 @@ The Identity service provides authentication services for each OpenStack service
 openstack project create --domain default --description "Service Project" service
 ```
 
-Create Domain, Project, user, and roles
+Create domain, project, user, and roles
 ```
 # create domain
 openstack domain create --description "An Private Domain" private
