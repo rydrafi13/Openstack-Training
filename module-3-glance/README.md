@@ -79,7 +79,7 @@ su -s /bin/sh -c "glance-manage db_sync" glance
 
 Restart the Image services
 ```
-systemctl restart glance
+systemctl restart glance-api
 ```
 
 ## Upload image to glance

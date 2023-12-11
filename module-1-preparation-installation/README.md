@@ -241,7 +241,7 @@ systemctl restart etcd
 Check listening port and service
 ```
 # check service
-systemctl status memcached
+systemctl status etcd
 
 # check port listening
 ss -tulpn

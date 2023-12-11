@@ -142,7 +142,7 @@ physical_interface_mappings = ext-net:ens192
 
 [vxlan]
 enable_vxlan = true
-local_ip = 10.0.0.8
+local_ip = 10.0.0.18
 l2_population = true
 
 [securitygroup]
@@ -230,4 +230,119 @@ systemctl restart neutron-{server,linuxbridge-agent,dhcp-agent,metadata-agent,l3
 List agents to verify successful launch of the neutron agents
 ```
 openstack network agent list
+```
+
+## Launch an instance
+### Create Virtual Network
+Public Network
+```
+openstack network create  --share --external \
+  --provider-physical-network ext-net \
+  --provider-network-type flat public-net
+```
+
+Public Subnet
+```
+openstack subnet create --network public-net \
+  --allocation-pool start=10.20.30.x,end=10.20.30.x \
+  --dns-nameserver 1.1.1.1 --gateway 10.20.30.254 \
+  --subnet-range 10.20.30.0/24 public-subnet
+```
+
+Private Network
+```
+openstack network create private-net
+```
+
+Private Subnet
+```
+openstack subnet create --network private-net \
+  --dns-nameserver 1.1.1.1 --gateway 10.50.100.254 \
+  --subnet-range 10.50.100.0/24 private-subnet
+```
+
+List network and subnet
+```
+# network
+openstack network list
+
+# subnet
+openstack subnet list
+```
+
+### Create Flavor
+Create m1.nano flavor
+```
+openstack flavor create --id 0 --vcpus 1 --ram 1024 --disk 10 m1.nano
+```
+
+List flavor
+```
+openstack flavor list
+```
+
+### Generate Keypair
+Generate a key pair and add a public key
+```
+# generate
+ssh-keygen -q -N ""
+
+# add pubkey
+openstack keypair create --public-key ~/.ssh/id_rsa.pub aio-key
+```
+
+List keypair
+```
+openstack keypair list
+```
+
+### Add security group rules
+Create security group
+```
+openstack security group create SG_Rafi
+```
+
+Add rules to the default security group Permit ICMP (ping)
+```
+openstack security group rule create --proto icmp SG_Rafi
+```
+
+Add rules to the default security group Permit secure shell (SSH)
+```
+openstack security group rule create --proto tcp --dst-port 22 SG_Rafi
+```
+
+List security group
+```
+openstack security group list
+```
+
+List rule security group
+```
+openstack security group rule list
+```
+
+### Launch an instance
+Launch Public-VM
+```
+openstack server create --flavor m1.nano --image cirros \
+  --nic net-id=PUBLIC_NET_ID --security-group SG_Rafi \
+  --key-name aio-key Public-VM
+```
+
+Launch Private-VM
+```
+openstack server create --flavor m1.nano --image cirros \
+  --nic net-id=PRIVATE_NET_ID --security-group SG_Rafi \
+  --key-name aio-key Private-VM 
+```
+
+Check the status of your instance
+```
+openstack server list
+```
+
+Obtain a Virtual Network Computing (VNC) session URL for your instance and access it from a web browser
+```
+openstack console url show VM
 ```

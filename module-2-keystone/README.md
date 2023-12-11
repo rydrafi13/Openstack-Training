@@ -67,7 +67,7 @@ vim /etc/apache2/apache2.conf
 
 Set this
 ```
-ServerName controller # Set this
+ServerName controller # line 70
 ```
 
 Restart Service
@@ -118,5 +118,5 @@ openstack project create --domain private --description "Personal Project" perso
 openstack user create --domain private --password-prompt rafiryd
 
 # add role admin to user on project 
-openstack role add --project personal --user rafiryd admin
+openstack role add --project personal --user rafiryd member
 ```

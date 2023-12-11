@@ -155,7 +155,7 @@ connection = mysql+pymysql://nova:password@controller/nova
 # ...
 transport_url = rabbit://openstack:password@controller:5672/
 instances_path=/var/lib/nova/instances
-my_ip = 10.0.0.8
+my_ip = 10.0.0.18
 
 [api]
 # ...
@@ -175,7 +175,7 @@ password = password
 
 [service_user]
 send_service_user_token = true
-auth_url = http://controller/identity
+auth_url = http://controller:5000/identity
 auth_strategy = keystone
 auth_type = password
 project_domain_name = Default
@@ -189,7 +189,7 @@ enabled = true
 # ...
 server_listen = 0.0.0.0
 server_proxyclient_address = $my_ip
-novncproxy_base_url = http://10.0.0.8:6080/vnc_auto.html
+novncproxy_base_url = http://10.0.0.18:6080/vnc_auto.html
 
 [glance]
 # ...
@@ -201,7 +201,7 @@ lock_path = /var/lib/nova/tmp
 
 [placement]
 # ...
-region_name = RegionOne
+region_name = JKT-01
 project_domain_name = Default
 project_name = service
 auth_type = password
