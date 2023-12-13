@@ -267,6 +267,7 @@ openstack_region_name: "JKT-01"
 enable_cinder: "yes"
 enable_cinder_backend_lvm: "yes"
 enable_etcd: "yes"
+enable_horizon: "{{ enable_openstack_core | bool }}"
 ```
 
 Check options globals.yml
@@ -342,22 +343,22 @@ ansible -i multinode all -m ping
 
 The bootstrap-servers command, can be used to prepare the new hosts that are being added to the system. Be aware of the potential issues with running bootstrap-servers on an existing system
 ```
-kolla-ansible -i <inventory> bootstrap-servers --limit controller03
+kolla-ansible -i multinode bootstrap-servers --limit controller03
 ```
 
 Do pre-deployment checks for hosts
 ```
-kolla-ansible -i <inventory> prechecks --limit controller03
+kolla-ansible -i multinode prechecks --limit controller03
 ```
 
 Pull down container images to the new hosts. The --limit argument may be used and only needs to include the new hosts
 ```
-kolla-ansible -i <inventory> pull --limit controller03
+kolla-ansible -i multinode pull --limit controller03
 ```
 
 Deploy containers to the new hosts. If using a --limit argument, ensure that all controllers are included, e.g. via --limit control
 ```
-kolla-ansible -i <inventory> deploy --limit control
+kolla-ansible -i multinode deploy --limit control
 ```
 
 ### Add node compute
@@ -380,22 +381,69 @@ ansible -i multinode all -m ping
 
 The bootstrap-servers command, can be used to prepare the new hosts that are being added to the system. Be aware of the potential issues with running bootstrap-servers on an existing system
 ```
-kolla-ansible -i <inventory> bootstrap-servers --limit compute02
+kolla-ansible -i multinode bootstrap-servers --limit compute02
 ```
 
 Do pre-deployment checks for hosts
 ```
-kolla-ansible -i <inventory> prechecks --limit compute02
+kolla-ansible -i multinode prechecks --limit compute02
 ```
 
 Pull down container images to the new hosts. The --limit argument may be used and only needs to include the new hosts
 ```
-kolla-ansible -i <inventory> pull --limit compute02
+kolla-ansible -i multinode pull --limit compute02
 ```
 
 Deploy containers on the new hosts. The --limit argument may be used and only needs to include the new hosts
 ```
-kolla-ansible -i <inventory> deploy --limit compute02
+kolla-ansible -i multinode deploy --limit compute02
 ```
 
 ### Add addtional service
+globals.yml is the main configuration file for Kolla Ansible. There are a few options that are required to deploy Kolla Ansible
+```
+vim /etc/kolla/globals.yml
+```
+
+Set this
+```
+kolla_base_distro: "ubuntu"
+openstack_release: "zed"
+kolla_internal_vip_address: "10.0.0.x" # Range IP Available
+network_interface: "ens160"
+neutron_external_interface: "ens192"
+openstack_region_name: "JKT-01"
+enable_cinder: "yes"
+enable_cinder_backend_lvm: "yes"
+enable_etcd: "yes"
+enable_horizon: "{{ enable_openstack_core | bool }}"
+enable_horizon_masakari: "{{ enable_masakari | bool }}"
+enable_horizon_watcher: "{{ enable_watcher | bool }}"
+enable_masakari: "yes"
+enable_watcher: "yes"
+```
+
+Check options globals.yml
+```
+cat /etc/kolla/globals.yml | grep -v "#" |  tr -s [:space:]
+```
+
+The bootstrap-servers command, can be used to prepare the new hosts that are being added to the system. Be aware of the potential issues with running bootstrap-servers on an existing system
+```
+kolla-ansible -i multinode bootstrap-servers --tags watcher,masakari
+```
+
+Do pre-deployment checks for hosts
+```
+kolla-ansible -i multinode prechecks --tags watcher,masakari
+```
+
+Pull down container images to the new hosts. The --limit argument may be used and only needs to include the new hosts
+```
+kolla-ansible -i multinode pull --tags watcher,masakari
+```
+
+Deploy containers on the new hosts. The --limit argument may be used and only needs to include the new hosts
+```
+kolla-ansible -i multinode deploy --tags watcher,masakari
+```
