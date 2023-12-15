@@ -51,18 +51,18 @@ netplan apply
 ### Update ,Upgrade, and Cleaning Packages
 Update repository & Update packages
 ```
-apt update -y && apt upgrade -y
+sudo apt update -y && apt upgrade -y
 ```
 
 Cleaning package
 ```
-apt autoremove -y && apt clean all
+sudo apt autoremove -y && apt clean all
 ```
 
 ### Set /etc/host
 Edit /etc/host
 ```
-vim /etc/hosts
+sudo vim /etc/hosts
 ```
 
 Set hostname to host
@@ -74,6 +74,23 @@ Set hostname to host
 ```
 
 ## Prepare Environtment
+### Install SSH Pass
+Install sshpass
+```
+sudo apt install sshpass
+```
+
+### Set SSH Config
+Set ssh config
+```
+sudo vim /etc/ssh_config
+```
+
+Set this
+```
+StrictHostKeyChecking no
+```
+
 ### Generate SSH Key
 Generate SSH Key based RSA
 ```
@@ -144,7 +161,7 @@ sudo apt install python3-venv
 
 Create a directory
 ```
-mkdir -p kolla/venv
+mkdir kolla
 ```
 
 Create a virtual environment and activate it
@@ -179,12 +196,12 @@ sudo chown $USER:$USER /etc/kolla
 
 Copy the configuration files to /etc/kolla directory. kolla-ansible holds the configuration files ( globals.yml and passwords.yml) in etc/kolla
 ```
-cp -r kolla/etc_examples/kolla/* /etc/kolla
+cp -r kolla/venv/share/kolla-ansible/etc_examples/kolla/* /etc/kolla/ 
 ```
 
 Copy the inventory files to the current directory. kolla-ansible holds inventory files ( all-in-one and multinode) in the ansible/inventory directory
 ```
-cp kolla/ansible/inventory/* .
+cp kolla/venv/share/kolla-ansible/ansible/inventory/* .
 ```
 
 ### Install Ansible Galaxy requirements
@@ -265,6 +282,7 @@ network_interface: "ens160"
 neutron_external_interface: "ens192"
 openstack_region_name: "JKT-01"
 enable_cinder: "yes"
+enable_cinder_backup: "no"  
 enable_cinder_backend_lvm: "yes"
 enable_etcd: "yes"
 enable_horizon: "{{ enable_openstack_core | bool }}"
@@ -414,6 +432,7 @@ network_interface: "ens160"
 neutron_external_interface: "ens192"
 openstack_region_name: "JKT-01"
 enable_cinder: "yes"
+enable_cinder_backup: "no"  
 enable_cinder_backend_lvm: "yes"
 enable_etcd: "yes"
 enable_horizon: "{{ enable_openstack_core | bool }}"
