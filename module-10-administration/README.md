@@ -1,5 +1,19 @@
 # Openstack Admninistration
 
+
+## Manage keystone via CLI
+Create project, user, and roles
+```
+# create project 
+openstack project create --domain default --description "Personal Project" personal
+
+# create user
+openstack user create --domain default --password-prompt rafiryd
+
+# add role admin to user on project 
+openstack role add --project personal --user rafiryd member
+```
+
 ## Upload image to glance
 Download the source image
 ```
@@ -24,7 +38,7 @@ glance image-list
 Public Network
 ```
 openstack network create  --share --external \
-  --provider-physical-network ext-net \
+  --provider-physical-network physnet1 \
   --provider-network-type flat public-net
 ```
 
