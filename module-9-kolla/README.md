@@ -83,7 +83,7 @@ sudo apt install sshpass
 ### Set SSH Config
 Set ssh config
 ```
-sudo vim /etc/ssh_config
+sudo vim /etc/ssh/ssh_config
 ```
 
 Set this
