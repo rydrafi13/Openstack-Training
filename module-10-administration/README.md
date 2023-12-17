@@ -1,6 +1,5 @@
 # Openstack Admninistration
 
-
 ## Manage keystone via CLI
 Create project, user, and roles
 ```
@@ -17,13 +16,13 @@ openstack role add --project personal --user rafiryd member
 ## Upload image to glance
 Download the source image
 ```
-wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+curl -LO https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
 ```
 
 Upload the image to the Image service using the QCOW2 disk format, bare container format, and public visibility so all projects can access it
 ```
-glance image-create --name "cirros" \
-  --file cirros-0.4.0-x86_64-disk.img \
+glance image-create --name "ubuntu-18" \
+  --file bionic-server-cloudimg-amd64.img \
   --disk-format qcow2 --container-format bare \
   --visibility=public
 ```
@@ -89,7 +88,7 @@ Generate a key pair and add a public key
 ssh-keygen -q -N ""
 
 # add pubkey
-openstack keypair create --public-key ~/.ssh/id_rsa.pub aio-key
+openstack keypair create --public-key ~/.ssh/id_rsa.pub host-key
 ```
 
 List keypair
@@ -148,6 +147,19 @@ Obtain a Virtual Network Computing (VNC) session URL for your instance and acces
 openstack console url show VM
 ```
 
+cloud-init sample
+```
+#cloud-config
+
+users:
+  - name: rafiryd
+    passwd: $6$rounds=10000$SALTSTRING$ENCRYPTEDPASSWORD
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+    ssh_pwauth: true
+```
+
 ## Manage Volume via CLI
 Create a 1 GB volume
 ```
@@ -162,4 +174,62 @@ openstack volume list
 Attach a volume to an instance
 ```
 openstack server add volume Public-VM volume1
+```
+
+## Manage Stack
+Create Stack Template
+```
+vim stack1.yml
+```
+
+Set this
+```
+heat_template_version: 2015-10-15
+
+resources:
+  web_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - protocol: icmp
+          remote_ip_prefix: 0.0.0.0/0
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 22
+          port_range_max: 22
+
+  volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: 2
+
+
+  instance_port:
+    type: OS::Neutron::Port
+    properties:
+      network: public-net
+      security_groups:
+        - default
+        - { get_resource: web_secgroup }
+      fixed_ips:
+        - subnet_id: public-subnet
+
+  instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: cirros
+      networks:
+        - port: { get_resource: instance_port }
+
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: volume }
+      instance_uuid: { get_resource: instance }
+```
+
+Create stack
+```
+openstack stack create -t stack1.yml stack1
 ```

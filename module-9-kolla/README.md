@@ -288,6 +288,7 @@ enable_cinder_backup: "no"
 enable_cinder_backend_lvm: "yes"
 enable_etcd: "yes"
 enable_horizon: "{{ enable_openstack_core | bool }}"
+nova_compute_virt_type: "qemu"
 ```
 
 Check options globals.yml
@@ -444,6 +445,7 @@ enable_horizon_masakari: "{{ enable_masakari | bool }}"
 enable_horizon_watcher: "{{ enable_watcher | bool }}"
 enable_masakari: "yes"
 enable_watcher: "yes"
+nova_compute_virt_type: "qemu"
 ```
 
 Check options globals.yml
